@@ -84,7 +84,7 @@ export default function SetAvatar() {
                 >
                   <img
                     src={`data:image/svg+xml;base64,${avatar}`}
-                    alt="avatar"
+                    alt=""
                     key={avatar}
                     onClick={() => setSelectedAvatar(index)}
                   />
