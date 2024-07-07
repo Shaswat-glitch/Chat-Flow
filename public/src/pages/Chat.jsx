@@ -1,9 +1,53 @@
-import React from "react"
+import React,{useState,useEffect} from "react"
 import styled from "styled-components"
+import axios from "axios"
+import { useNavigate } from "react-router-dom";
+import { allUsersRoute, host } from "../utils/APIRoutes";
+import Contact from "../components/Contact"
+import Welcome from "../components/Welcome";
+import ChatContainer from "../components/ChatContainer";
 function Chat(){
+    const navigate = useNavigate();
+    const [contacts, setContacts] = useState([]);
+    const [currentChat, setCurrentChat] = useState(undefined);
+    const [currentUser, setCurrentUser] = useState(undefined);
+    const [isLoaded,setIsLoaded] = useState(false);
+    useEffect( () => {
+        const check = async()=>{
+        if (!localStorage.getItem('chat-app-user')) navigate("/login");
+        else {
+        setCurrentUser(await JSON.parse(localStorage.getItem("chat-app-user")));
+        setIsLoaded(true)
+        }
+      }
+      check();
+      }, []);
+      useEffect( () => {
+      const update = async() =>  { if (currentUser) {
+          if (currentUser.isAvatarImageSet) {
+            const data = await axios.get(`${allUsersRoute}/${currentUser._id}`);
+            setContacts(data.data);
+          } else {
+            navigate("/setAvatar");
+          }
+        }}
+      update();
+      }, [currentUser]);
+      const handleChatChange = (chat) => {
+        setCurrentChat(chat);
+        console.log(currentChat)
+      };
     return (
     <Container>
-    <div>Chat</div>
+    <div className="container">
+    < Contact contacts={contacts} currentUser={currentUser} changeChat={handleChatChange}/>
+    { isLoaded && currentChat === undefined ? (
+          <Welcome />
+        ) : (
+
+          <ChatContainer currentChat={currentChat}/>
+        )}
+    </div>
     </Container>
     )
 }
